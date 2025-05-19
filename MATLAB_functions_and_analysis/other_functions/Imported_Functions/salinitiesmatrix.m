@@ -1,0 +1,62 @@
+function salinities = salinitiesmatrix(P_cells, sal_cells, setupfilestr, fs_fast, starting_depth, binsize)
+    %computes the average salinity at specified depths of interest
+    % for pressure and salinity data.
+    
+    % Define specific depths of interest
+    depths_of_interest = starting_depth:binsize:40; % Depths from 1 to 40 dbar
+    
+    
+    % Initialize matrix to hold temperature results for each dataset
+    num_datasets = length(P_cells);
+    salinities = nan(num_datasets, length(depths_of_interest)); % Use NaN for uninitialized values
+    
+    % Process each dataset
+    for dataset_idx = 1:num_datasets
+        P = P_cells{dataset_idx};
+        S = sal_cells{dataset_idx};
+        
+        % Check if length of P and JAC_T are the same
+        if length(S) ~= length(P)
+            fprintf('Pressure and Temperature have different lengths for dataset %d\n', dataset_idx);
+            continue;
+        end
+        
+        % Initialize array to hold temperature sums and counts
+        sal_sums = zeros(length(depths_of_interest), 1);
+        sal_counts = zeros(length(depths_of_interest), 1);
+        
+        % Print the range of depths available
+        fprintf('Dataset %d: Depth range in data: %.2f to %.2f dbar\n', dataset_idx, min(P), max(P));
+        
+        % Find average temperatures at specified depths
+        for sample_idx = 1:length(P)
+            current_depth = P(sample_idx);
+            current_sal = S(sample_idx);
+            
+            % Check if current depth is in the specified depths_of_interest
+            for i = 1:length(depths_of_interest)
+                if current_depth >= depths_of_interest(i) && current_depth < depths_of_interest(i) + 1
+                    sal_sums(i) = sal_sums(i) + current_sal; % Accumulate temperature
+                    sal_counts(i) = sal_counts(i) + 1; % Increment count
+                end
+            end
+        end
+        
+        % Compute average temperatures
+        for i = 1:length(depths_of_interest)
+            if sal_counts(i) > 0
+                salinities(dataset_idx, i) = sal_sums(i) / sal_counts(i); % Calculate average
+            end
+        end
+        
+        % Display the results for this dataset
+        for i = 1:length(depths_of_interest)
+            if ~isnan(salinities(dataset_idx, i))
+                fprintf('Dataset %d: Depth: %d dbar, Average Salinity: %.2f\n', dataset_idx, depths_of_interest(i), salinities(dataset_idx, i));
+            else
+                fprintf('Dataset %d: Depth: %d dbar, Average Salinity: Data not available\n', dataset_idx, depths_of_interest(i));
+            end
+        end
+    end
+end
+
