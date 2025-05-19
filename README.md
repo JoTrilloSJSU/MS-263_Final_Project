@@ -3,7 +3,7 @@
 
 This data project will investigate the interaction between regional and upwelling winds, and their relative impact on the rate of turbulence dissipation for a small upwelling bay (San Luis Obispo Bay) in the California Current System.
 
-The repository includes:
+The repository includes the following:
 - A Jupyter Notebook that performs structured analysis of oceanographic microstructure data using Python functions.
 - A complete archive of MATLAB functions and ODAS-based analysis used during the project.
 - All code and supporting files are located in the `python_analysis/` and `MATLAB_analysis_MS-263/` folders.
