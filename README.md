@@ -11,7 +11,7 @@ The repository includes the following:
 
 This analysis was developed for MS-263 (Spring 2025) and is designed to be run on systems with either Jupyter Notebooks or MATLAB installed.
 
-### Google drive data access: insert link
+### Google drive data access: link will be added as soon as data is uploaded to google drive -has been downloading for 14 hours as of 12 pm May 21st :(
 
 ## Steps needed to run the analysis code on another computer
 To run Jupyter Notebook containing the final project, copy and paste the python_analysis folder into Juptyter Notebooks/Jupyter Labs. All data needed for running the notebook are included in the folder and any necessary data_paths are correct as long as the structure of the folder remains unchanged.
@@ -24,7 +24,7 @@ Available from Google Drive: need link
 Located in `python_analysis/` or downloaded from the Drive folder above
 
 ## Source
-Data were collected during the 2024 San Luis Obispo Bay field campaign as part of the SUFEX project (insert link to website):
+Data were collected during the 2024 San Luis Obispo Bay field campaign as part of the SUFEX project. Project PIs: Tom Connolly(MLML, SJSU), Ryan Walter (Cal Poly SLO), Piero Mazini (VIMS):
 Instrumentation:
 * MicroCTD
 * NOAA MET buoys
