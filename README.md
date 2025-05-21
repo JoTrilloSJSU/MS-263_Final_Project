@@ -9,9 +9,9 @@ The repository includes the following:
 - All code and supporting files are located in the `python_analysis/` and `MATLAB_analysis_MS-263/` folders.
 - Due to size limitations, some raw data files are hosted externally on Google Drive.
 
-This analysis was developed for MS-263 (Spring 2025) and is designed to be run on systems with either Jupyter Notebooks or MATLAB installed.
+This analysis was developed for MS-263 (Spring 2025) and is designed to be run on systems with  Jupyter Notebooks and MATLAB installed.
 
-### Google drive data access: link will be added as soon as data is uploaded to google drive -has been downloading for 14 hours as of 12 pm May 21st :(
+### Google drive data access: https://drive.google.com/drive/folders/1UZaLHM4sLWB8IJBvlIM_dKHBMYcvV_ab?usp=share_link
 
 ## Steps needed to run the analysis code on another computer
 To run Jupyter Notebook containing the final project, copy and paste the python_analysis folder into Juptyter Notebooks/Jupyter Labs. All data needed for running the notebook are included in the folder and any necessary data_paths are correct as long as the structure of the folder remains unchanged.
@@ -19,12 +19,12 @@ To run Jupyter Notebook containing the final project, copy and paste the python_
 ### Processed/cleaned data:
 Located in `MATLAB_analysis_MS-263/data/`
 ### Raw ODAS .p files and NetCDFs:
-Available from Google Drive: need link
+Available from Google Drive: https://drive.google.com/drive/folders/1UZaLHM4sLWB8IJBvlIM_dKHBMYcvV_ab?usp=share_link
 ### Python-parsed or reformatted datasets:
 Located in `python_analysis/` or downloaded from the Drive folder above
 
 ## Source
-Data were collected during the 2024 San Luis Obispo Bay field campaign as part of the SUFEX project. Project PIs: Tom Connolly(MLML, SJSU), Ryan Walter (Cal Poly SLO), Piero Mazini (VIMS):
+Data were collected during the 2024 San Luis Obispo Bay field campaign as part of the SUFEX project. Project PIs: Tom Connolly(MLML, SJSU), Ryan Walter (Cal Poly SLO), Piero Mazzini (VIMS):
 Instrumentation:
 * MicroCTD
 * NOAA MET buoys
@@ -37,11 +37,12 @@ Instrumentation:
 * matplotlib
 * cartopy
 * cmocean
-* Final_Project_Functions.py (provided in repo)
+* scipy
+* MS263_Project_Functions.py (provided in repo)
 ### MATLAB:
 * ODAS Library (from Rockland Scientific) — included in odas_functions/
 * TEOS-10 GSW Toolbox — included in Imported_Functions/
 * Custom MATLAB scripts in:
      - My_functions/
-     - RKW_Functions/
+     - RKW_Functions/ (MATLAB scripts and functions written by Ryan Walter)
 
