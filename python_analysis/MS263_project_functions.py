@@ -3,18 +3,19 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cmocean.cm as cmo
+import cartopy.io.img_tiles as cimgt
 
 #=========================================== The following functions are for use in the final project for MS-263======================================================
 
 def strength_location_divisions(list_of_data, wind_threshold, bay_threshold, max_pressure):
-     '''
+    '''
     Categorize dissipation profile data based on wind strength and geographic location.
 
     This function separates profiles into four groups depending on whether wind forcing 
     is above or below a given threshold (strong vs. weak) and whether the profile lies 
     inside or outside a specified longitudinal threshold (in-bay vs. out-of-bay). 
     It returns a DataFrame for each group, containing filtered dissipation rates, 
-    buoyancy frequency (N²), pressure, wind speed, time, and geographic coordinates.
+    buoyancy frequency, pressure, wind speed, time, and geographic coordinates.
 
     Parameters:
     -----------
@@ -48,46 +49,41 @@ def strength_location_divisions(list_of_data, wind_threshold, bay_threshold, max
         Profiles with weak wind and located out-of-bay.
     '''
 
-    diss_strong_in, press_strong_in, time_strong_in, wind_strong_in, lat_strong_in, long_strong_in, N2_strong_in= [], [], [], [], [], [], []
+    diss_strong_in, press_strong_in, time_strong_in, wind_strong_in, lat_strong_in, long_strong_in, N2_strong_in = [], [], [], [], [], [], []
     diss_strong_out, press_strong_out, time_strong_out, wind_strong_out, lat_strong_out, long_strong_out, N2_strong_out = [], [], [], [], [], [], []
     diss_weak_in, press_weak_in, time_weak_in, wind_weak_in, lat_weak_in, long_weak_in, N2_weak_in = [], [], [], [], [], [], []
     diss_weak_out, press_weak_out, time_weak_out, wind_weak_out, lat_weak_out, long_weak_out, N2_weak_out = [], [], [], [], [], [], []
-    
 
-    # Loop over all datasets
     for ds in list_of_data:
         num_profiles = len(ds['dissipation'].values)
         for i in range(num_profiles):
-        # Loop over each profile in the dissipation data (across profiles)    
             long_i = ds['profile_long'].values[i, 0]
             lat_i = ds['profile_lat'].values[i, 0]
             diss_i = ds['dissipation'].values[i, :]
-            press_i = ds['pressure'].values[i,:] 
+            press_i = ds['pressure'].values[i, :] 
             N2_i = ds['N_squared'].values[i, :]
-            
             epoch_time = ds['start_time'].values[i, 0]
-            
-            if 0 < ds['wind'].values[i,0] < 100:    
-                wind_i = ds['wind'].values[i, 0]
+            wind_val = ds['wind'].values[i, 0]
+
+            if 0 < wind_val < 100:
+                wind_i = wind_val
             else:
-                print(f"Skipping bad wind value: {wind_i} at index {i}")
-                continue  # Skip to the next profile
-    
-            # Only proceed if the timestamp is within a reasonable time range
-            if 1e8 < epoch_time < 2e9:  
+                print(f"Skipping bad wind value: {wind_val} at index {i}")
+                continue
+
+            if 1e8 < epoch_time < 2e9:
                 utc_time = pd.to_datetime(epoch_time, unit='s', utc=True)
-                local_time = utc_time.tz_convert('America/Los_Angeles')
-                time_i = local_time
+                time_i = utc_time.tz_convert('America/Los_Angeles')
             else:
                 print(f"Skipping bad timestamp: {epoch_time} at index {i}")
-                continue  # Skip to the next profile
-    
+                continue
+
             mask = press_i < max_pressure
             diss_i = diss_i[mask]
             press_i = press_i[mask] 
             N2_i = N2_i[mask]
-    
-    
+
+            # Categorize
             if wind_i >= wind_threshold and long_i >= bay_threshold:
                 diss_strong_in.append(diss_i.tolist()) 
                 press_strong_in.append(press_i.tolist())
@@ -120,18 +116,23 @@ def strength_location_divisions(list_of_data, wind_threshold, bay_threshold, max
                 wind_weak_out.append(wind_i)
                 lat_weak_out.append(lat_i)
                 long_weak_out.append(long_i)
-               
-    df_strong_in = pd.DataFrame({'time': time_strong_in,'wind': wind_strong_in, 'N_squared': N2_strong_in,
-        'dissipation': diss_strong_in,'pressure': press_strong_in, 'latitude': lat_strong_in, 'longitude': long_strong_in})
-    
-    df_strong_out = pd.DataFrame({'time': time_strong_out,'wind': wind_strong_out, 'N_squared': N2_strong_out,
-        'dissipation': diss_strong_out,'pressure': press_strong_out, 'latitude': lat_strong_out, 'longitude': long_strong_out})
-    
-    df_weak_in = pd.DataFrame({'time': time_weak_in,'wind': wind_weak_in, 'N_squared': N2_weak_in,
-        'dissipation': diss_weak_in,'pressure': press_weak_in, 'latitude': lat_weak_in, 'longitude': long_weak_in})
-    
-    df_weak_out = pd.DataFrame({'time': time_weak_out,'wind': wind_weak_out, 'N_squared': N2_weak_out,
-        'dissipation': diss_weak_out,'pressure': press_weak_out, 'latitude': lat_weak_out, 'longitude': long_weak_out}) 
+
+    # Create DataFrames
+    df_strong_in = pd.DataFrame({'time': time_strong_in, 'wind': wind_strong_in, 'N_squared': N2_strong_in,
+                                 'dissipation': diss_strong_in, 'pressure': press_strong_in,
+                                 'latitude': lat_strong_in, 'longitude': long_strong_in})
+
+    df_strong_out = pd.DataFrame({'time': time_strong_out, 'wind': wind_strong_out, 'N_squared': N2_strong_out,
+                                  'dissipation': diss_strong_out, 'pressure': press_strong_out,
+                                  'latitude': lat_strong_out, 'longitude': long_strong_out})
+
+    df_weak_in = pd.DataFrame({'time': time_weak_in, 'wind': wind_weak_in, 'N_squared': N2_weak_in,
+                               'dissipation': diss_weak_in, 'pressure': press_weak_in,
+                               'latitude': lat_weak_in, 'longitude': long_weak_in})
+
+    df_weak_out = pd.DataFrame({'time': time_weak_out, 'wind': wind_weak_out, 'N_squared': N2_weak_out,
+                                'dissipation': diss_weak_out, 'pressure': press_weak_out,
+                                'latitude': lat_weak_out, 'longitude': long_weak_out})
 
     return df_strong_in, df_strong_out, df_weak_in, df_weak_out
 
@@ -350,47 +351,55 @@ def turbulence_intensity_parameter(divided_data_frame):
         dissipation.extend(diss[mask])
     
     I = np.array(dissipation)/(np.array(N_squareds) *viscosity)
-    return I                           
+    return I, longitudes, depths, N_squareds, dissipation                           
 
 
 
 #======================================= Plot functions to make notebook cleaner, axis are hardcoded and not made for general use =======================================
 
-def strength_location_division_plots(divided_data_frame, title=''):
-    plt.figure(figsize=(12, 10))
-    
-    plt.subplot(2,2,1)
-    for i in range(len(divided_data_frame['N_squared'])):
-        plt.plot((divided_data_frame['N_squared'][i]), divided_data_frame['pressure'][i], linewidth=2, marker='o')
-        
-    plt.gca().invert_yaxis() 
-    plt.xlabel('N^2 [s^-2]')
-    plt.ylabel('Pressure (dbar)')
-    plt.title(title)
-    plt.show()
+def strength_location_division_plots(divided_data_frame, title='', ax=None):
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(6, 5))
 
-def time_divisions_plot(time_division_df,title=''):
+    for i in range(len(divided_data_frame['N_squared'])):
+        ax.plot(divided_data_frame['N_squared'][i], divided_data_frame['pressure'][i],
+                linewidth=2, marker='o')
+
+    ax.invert_yaxis()
+    ax.set_xlabel(r'$\log_{10}\epsilon$ [W/kg]')
+    ax.set_ylabel('Pressure (dbar)')
+    ax.set_title(title)
+
+def time_divisions_plot(time_division_df, title='', ax=None):
+    import numpy as np
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(6, 5))
+
     for i in range(len(time_division_df['dissipation'])):
-        plt.plot(np.log10(np.array(time_division_df['dissipation'].iloc[i])), np.array(time_division_df['pressure'].iloc[i]), linewidth=2, marker='o')
-        
-    plt.gca().invert_yaxis() 
-    plt.xlabel('$\log_{10}\epsilon$ [W/kg]')
-    plt.ylabel('Pressure (dbar)')
-    plt.title(title)
-    plt.show()
+        eps = np.log10(np.array(time_division_df['dissipation'].iloc[i]))
+        pressure = np.array(time_division_df['pressure'].iloc[i])
+        ax.plot(eps, pressure, linewidth=2, marker='o')
+
+    ax.invert_yaxis()
+    ax.set_xlabel(r'$\log_{10}\epsilon$ [W/kg]')
+    ax.set_ylabel('Pressure (dbar)')
+    ax.set_title(title)
 
 
 def ship_vs_buoy_timeseries(location_dividion_df, buoy_df, title=''):
     df_buoy = buoy_df
-    buoy_index = (location_dividion_df['datetime_local'] >= location_dividion_df['time'].min()) & 
-    (location_dividion_df['datetime_local'] <= location_dividion_df['time'].max())
-
-    plt.plot(df_buoy['datetime_local'][buoy_index], df_buoy['wndsd'][buoy_index], linewidth=2, color = 'orange', label = 'buoy wind speed')
-    plt.scatter( df_in['time'], df_in['wind'], label = 'ship wind speed')
+    buoy_index = (
+        (df_buoy['datetime_local'] >= location_dividion_df['time'].min()) & 
+        (df_buoy['datetime_local'] <= location_dividion_df['time'].max()) &
+        (df_buoy['wndsd'] < 40)
+    )
+    plt.plot(df_buoy['datetime_local'][buoy_index], df_buoy['wndsd'][buoy_index], linewidth=2, color='orange', label='buoy wind speed')
+    plt.scatter(location_dividion_df['time'], location_dividion_df['wind'], label='ship wind speed')
     plt.ylabel('wind [m/s]')
     plt.legend()
     plt.title(title)
-    plt.show()    
+    plt.show()   
 
 
 def slo_map():
@@ -399,6 +408,7 @@ def slo_map():
     
     line_D_lat =   [35.1125, 35.1186, 35.1215, 35.1245, 35.1276, 35.1337, 35.1367]
     line_D_lon =   [-120.7223 , -120.7142, -120.7101, -120.7059, -120.7019, -120.6937, -120.6897]
+    extent_slo = [-120.6, -120.8, 35.187, 35.05]
     
     
     request = cimgt.GoogleTiles(style = 'satellite')
